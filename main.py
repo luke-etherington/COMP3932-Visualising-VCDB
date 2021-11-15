@@ -21,7 +21,6 @@ DATA_FILE = "./data/vcdb_1-of-1.json"
 def main():
     vcdbData = pd.read_json(DATA_FILE)
     plotIncidentVariety(vcdbData)
-    
 
 def plotIncidentVariety(vcdbData):
     actionData = pd.json_normalize(vcdbData['action'])
