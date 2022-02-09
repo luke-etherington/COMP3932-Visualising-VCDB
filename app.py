@@ -18,29 +18,61 @@ from dash import Dash, html, dcc
 from numpy import dtype
 import plotly.express as px
 import pandas as pd
+from flatten_json import flatten
 import json
+import dash_bootstrap_components as dbc
 
-app = Dash(__name__)
+external_stylesheets = ['https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css']
+
+app = Dash(__name__, update_title=None, external_stylesheets = external_stylesheets)
+
+def read_json_file(filename):
+    f = open(filename, 'r')
+    data = json.loads(f.read())
+    f.close()
+    return data
+
+def get_flattened_dataframe(data):
+    return pd.DataFrame([flatten(d, '.') for d in data])
 
 DATA_FILE = "./data/vcdb_1-of-1.json"
 
-df = pd.read_json(DATA_FILE)
+data = read_json_file(DATA_FILE)
+df = get_flattened_dataframe(data)
 
-df_error = df[[i for i in map(lambda x: 'error' in x.keys(), df['action'])]]
-df_error_action_normalised = pd.json_normalize(df_error['action'])
-df_error_action_normalised['error.variety'] =  df_error_action_normalised['error.variety'].map(lambda l: ' '.join(map(str,l)))
-df_error_variety_group_by_count = df_error_action_normalised.groupby('error.variety').size()
-df_error_variety_group_by_count = df_error_variety_group_by_count.to_frame(name='count').reset_index()
-fig = px.bar(df_error_variety_group_by_count, x='error.variety', y='count', color='error.variety')
+fig = px.bar(df['action.error.variety.0'].value_counts().rename("count").reset_index(), 
+    x='index', 
+    y='count', 
+    color='index',
+    labels={
+        "index" : "Error Variety",
+        "count" : "Count"
+    },
+    title="Count of Error Variety"
+)
 
-app.layout =  html.Div( children=[
-    html.H1(children='VBCB Vis'),
+navbar = dbc.NavbarSimple([],
+brand="VCDB Vis",
+brand_href="#",
+color="primary",
+dark=True,
+fluid=True)
+
+app.title = "VCDB Dashboard"
+
+app.layout =  html.Div([
+    navbar,
 
     dcc.Graph(
-        id='Error Variety',
-        figure = fig
+        id='dashboard-graph',
+        figure = fig,
+        style = {'height' : '100%'}
     )
-])
+
+], style = {'height' : '90vh'}
+)
+
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)#
