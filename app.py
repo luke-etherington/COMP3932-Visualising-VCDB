@@ -13,11 +13,8 @@ Supervisor: Nick Efford
 app.py
 
 """
-from cProfile import label
-from gc import callbacks
-from itertools import groupby
+from tkinter import Button
 from dash import Dash, html, dcc, Input, Output
-from numpy import dtype, size
 import plotly.express as px
 import pandas as pd
 from flatten_json import flatten
@@ -27,7 +24,8 @@ from pycountry_convert import country_alpha2_to_continent_code, country_alpha2_t
 
 external_stylesheets = ['https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css']
 
-app = Dash(__name__, update_title=None, external_stylesheets = external_stylesheets)
+app = Dash(__name__, update_title=None, external_stylesheets = external_stylesheets, suppress_callback_exceptions=True)
+
 
 def read_json_file(filename):
     f = open(filename, 'r')
@@ -37,6 +35,14 @@ def read_json_file(filename):
 
 def get_flattened_dataframe(data):
     return pd.DataFrame([flatten(d, '.') for d in data])
+    
+def generate_dashboard_content(figure_name):
+    dashboard_graph = dcc.Graph(
+        id='dashboard-graph',
+        figure=figure_name,
+        style = {'height' : '100%'}
+    )
+    return dashboard_graph
 
 DATA_FILE = "./data/vcdb_1-of-1.json"
 
@@ -72,6 +78,7 @@ fig_incident_locations = px.scatter_geo(df[df['victim.country.alpha3'] != 'Unkno
     size_max=100,
     color='index',
     projection='natural earth',
+    title="Incident Locations",
     labels={
         'index' : "Country",
         'count' : "# of Incidents"
@@ -87,28 +94,35 @@ navbar = dbc.NavbarSimple([
     fluid=True
 )
 
-dashboard_graph = dcc.Graph(
-        id='dashboard-graph',
-        style = {'height' : '100%'}
-    )
+
+content = html.Div(id="page-content", style={'height' : '100%'})
 
 app.title = "VCDB Dashboard"
 
 app.layout =  html.Div([
     dcc.Location(id="url"),
     navbar,
-    dashboard_graph
+    content
 ], style = {'height' : '90vh'}
 )
 
-@app.callback(Output("dashboard-graph", "figure"), [Input("url", "pathname")])
+@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     if pathname == "/":
-        return fig_error_variety
+        return generate_dashboard_content(fig_error_variety)
     elif pathname == "/map":
-        return fig_incident_locations
-    return None
+        return generate_dashboard_content(fig_incident_locations)
+    return [dbc.Alert("Invalid Endpoint", color="danger"),
+            dbc.Button("Return Home", id="home-button", size="lg", color="primary")]
+
+@app.callback(
+    Output("url", "pathname"),
+    [Input("home-button", "n_clicks")]
+)
+def on_home_button_click(n):
+    if n is not None:
+        return "/"
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)#
+    app.run_server(debug=True)
