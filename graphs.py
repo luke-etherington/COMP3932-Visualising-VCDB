@@ -1,0 +1,49 @@
+import pandas as pd
+import data
+import plotly.express as px
+from pycountry_convert import country_alpha2_to_continent_code, country_alpha2_to_country_name, country_name_to_country_alpha3
+from dash import dcc
+
+## Used to convert default 2 character continent codes to full continent names
+continents = {
+    'NA': 'North America',
+    'SA': 'South America', 
+    'AS': 'Asia',
+    'OC': 'Australia',
+    'AF': 'Africa',
+    'EU': 'Europe'
+}
+
+df = data.generate_flattened_dataframe()
+
+## creates column in dataframe containing ISO-Alpha3 conversion of ISO-Alpha2 country codes
+df['victim.country.alpha3'] = df['victim.country.0'].apply(lambda c : c if c == 'Unknown' else country_name_to_country_alpha3(country_alpha2_to_country_name(c)))
+## creates column in dataframe containing continent name corresponding to ISO-Alpha2 country code
+df['victim.continent'] = df['victim.country.0'].apply(lambda c: c if c == 'Unknown' else 'Asia' if c == 'TL' else 'North America' if c == 'UM' else continents[country_alpha2_to_continent_code(c)])
+
+
+## Figure representing # Incidents / Error variety as a bar chart
+fig_error_variety = px.bar(df['action.error.variety.0'].value_counts().rename("count").reset_index(), 
+    x='index', 
+    y='count', 
+    color='index',
+    labels={
+        "index" : "Error Variety",
+        "count" : "Count"
+    },
+    title="Count of Error Variety"
+)
+
+## Figure representing # Incidents / Country as a geographical scatter plot
+fig_incident_locations = px.scatter_geo(df[df['victim.country.alpha3'] != 'Unknown']['victim.country.alpha3'].value_counts()[lambda x: x > 10].rename("count").reset_index(), 
+    locations='index', 
+    size='count', 
+    size_max=100,
+    color='index',
+    projection='natural earth',
+    title="Incident Locations",
+    labels={
+        'index' : "Country",
+        'count' : "# of Incidents"
+    })
+
