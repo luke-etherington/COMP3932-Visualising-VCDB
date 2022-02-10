@@ -1,6 +1,7 @@
 import json
 from flatten_json import flatten
 import pandas as pd
+from data_update import update_zip_file
 
 DATA_FILE = "./data/vcdb_1-of-1.json"
 
@@ -18,6 +19,7 @@ def get_flattened_dataframe(json_data):
 
 ## Provides a pandas dataframe of the flattened JSON data from file
 def generate_flattened_dataframe():
+    update_zip_file()
     data = read_json_file(DATA_FILE)
     df = get_flattened_dataframe(data)
     return df
