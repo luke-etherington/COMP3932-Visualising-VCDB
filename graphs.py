@@ -1,3 +1,4 @@
+from turtle import color
 import pandas as pd
 import data
 import plotly.express as px
@@ -61,4 +62,14 @@ fig_data_variety = px.pie(df['attribute.confidentiality.data.0.variety'].value_c
     }
 )
 
-summary_table = dbc.Table.from_dataframe(df.iloc[:, [18,22]].reset_index().rename(columns={"index": "#", "reference": "Incident Reference", "summary": "Incident Summary"}), bordered=True, hover=True, color='dark', responsive='sm', size='sm', style={'word-break': 'break-word', 'font-size': 12})
+summary_table = dbc.Table.from_dataframe(df.iloc[:, [18,22]].reset_index().rename(columns={"index": "#", "reference": "Incident Reference", "summary": "Incident Summary"}), 
+    bordered=True, 
+    hover=True,
+    color='primary',
+    responsive='sm', 
+    size='sm', 
+    style={
+        'word-break': 'break-word', 
+        'font-size': 12,
+    }
+)
