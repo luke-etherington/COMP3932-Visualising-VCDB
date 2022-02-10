@@ -19,7 +19,12 @@ def get_flattened_dataframe(json_data):
 
 ## Provides a pandas dataframe of the flattened JSON data from file
 def generate_flattened_dataframe():
-    update_zip_file()
+    #update_zip_file()
     data = read_json_file(DATA_FILE)
     df = get_flattened_dataframe(data)
     return df
+
+## Utility function used to output pandas dataframe to excel file
+## USE FOR DEBUGGING PURPOSES ONLY
+def generate_excel_output(df):
+    return df.to_excel("./data/output.xlsx")

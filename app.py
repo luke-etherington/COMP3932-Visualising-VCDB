@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # coding=utf-8
 # =============================================================================
 # Author: Luke Etherington
@@ -21,7 +21,7 @@ import callbacks
 
 external_stylesheets = ['https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css']
 
-app = Dash(__name__, update_title=None, external_stylesheets = external_stylesheets, suppress_callback_exceptions=True)
+app = Dash(__name__, external_stylesheets = external_stylesheets, suppress_callback_exceptions=True)
 app.title = "VCDB Dashboard"
 
 
@@ -49,8 +49,12 @@ def generate_dashboard_content(figure):
 def render_page_content(pathname):
     if pathname == "/":
         return generate_dashboard_content(graphs.fig_error_variety)
-    elif pathname == "/map":
+    elif pathname == "/incident_location_map":
         return generate_dashboard_content(graphs.fig_incident_locations)
+    elif pathname == "/confidential_data_loss":
+        return generate_dashboard_content((graphs.fig_data_variety))
+    elif pathname == "/summary_table":
+        return graphs.summary_table
     return endpoint_error
 
 if __name__ == "__main__":
