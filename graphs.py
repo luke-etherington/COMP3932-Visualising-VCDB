@@ -1,14 +1,16 @@
-from turtle import color
+import calendar
+from math import isnan
+
+import dash_bootstrap_components as dbc
 import pandas as pd
-import data
 import plotly.express as px
 from pycountry_convert import (
     country_alpha2_to_continent_code,
     country_alpha2_to_country_name,
     country_name_to_country_alpha3,
 )
-from dash import dcc
-import dash_bootstrap_components as dbc
+
+import data
 
 ## Used to convert default 2 character continent codes to full continent names
 continents = {
@@ -39,6 +41,34 @@ df["victim.continent"] = df["victim.country.0"].apply(
     else continents[country_alpha2_to_continent_code(c)]
 )
 
+## Figure representing # Incidents / Incident Year as a bar chart
+fig_incident_year = px.bar(
+    df[df["timeline.incident.year"].astype(int) >= 2000]["timeline.incident.year"]
+    .value_counts()[lambda x: x != 0]
+    .rename("count")
+    .reset_index(),
+    x="index",
+    y="count",
+    labels={"index": "Incident Year", "count": "# Incidents"},
+    title="# Incidents / year",
+)
+fig_incident_year.update_xaxes(tickmode="linear", tickfont=dict(size=10))
+fig_incident_year.update_yaxes(fixedrange=True)
+
+fig_avg_incident_month = px.bar(
+    df["timeline.incident.month"]
+    .value_counts()
+    .apply(lambda c: c / len(pd.unique(df["timeline.incident.year"])))[lambda x: x != 0]
+    .rename("count")
+    .reset_index(),
+    x="index",
+    # x=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+    y="count",
+    labels={"index": "Incident Month", "count": "Avg # Incidents"},
+    title="Average # Incidents / Month",
+)
+fig_avg_incident_month.update_xaxes(tickmode="linear")
+fig_avg_incident_month.update_yaxes(fixedrange=True)
 
 ## Figure representing # Incidents / Error variety as a bar chart
 fig_error_variety = px.bar(
@@ -46,8 +76,21 @@ fig_error_variety = px.bar(
     x="index",
     y="count",
     color="index",
-    labels={"index": "Error Variety", "count": "Count"},
-    title="Count of Error Variety",
+    labels={"index": "Error Variety", "count": "# Incidents"},
+    title="# Incidents / Error Variety",
+)
+fig_error_variety.update_layout(showlegend=False)
+fig_error_variety.update_xaxes(tickangle=70, tickfont=dict(size=10))
+
+fig_incident_victims = px.bar(
+    df["victim.victim_id"]
+    .value_counts()[lambda c: c > 10]
+    .rename("count")
+    .reset_index(),
+    x="index",
+    y="count",
+    labels={"index", "Incident Victim", "count", "# Incidents"},
+    title="Most common incident victims",
 )
 
 ## Figure representing # Incidents / Country as a geographical scatter plot
@@ -77,6 +120,8 @@ fig_data_variety = px.pie(
     title="Confidential Data Occurences",
     labels={"index": "Confidential Data Category", "count": "# Occurences"},
 )
+fig_data_variety.update_traces(textposition="inside")
+fig_data_variety.update_layout(uniformtext_minsize=12, uniformtext_mode="hide")
 
 summary_table = dbc.Table.from_dataframe(
     df.iloc[:, [18, 22]]

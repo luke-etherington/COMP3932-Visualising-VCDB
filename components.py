@@ -9,7 +9,7 @@ navbar = dbc.NavbarSimple(
             )
         ),
         dbc.NavItem(
-            dbc.NavLink("Data Loss", href="confidential_data_loss", active="exact")
+            dbc.NavLink("Incident Victims", href="incident_victims", active="exact")
         ),
         dbc.NavItem(dbc.NavLink("")),
         dbc.DropdownMenu(

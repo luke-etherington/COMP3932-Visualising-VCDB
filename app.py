@@ -11,10 +11,10 @@
 # app.py
 # =============================================================================
 
-from dash import Dash, html, dcc, Input, Output, callback
-from components import navbar, endpoint_error
+from dash import Dash, Input, Output, callback, dcc, html
+
 import graphs
-import callbacks
+from components import endpoint_error, navbar
 
 external_stylesheets = [
     "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
@@ -85,15 +85,15 @@ def generate_dashboard(figure_1, figure_2, figure_3, figure_4):
 def render_page_content(pathname):
     if pathname == "/":
         return generate_dashboard(
-            graphs.fig_data_variety,
+            graphs.fig_incident_year,
             graphs.fig_data_variety,
             graphs.fig_error_variety,
-            graphs.fig_error_variety,
+            graphs.fig_avg_incident_month,
         )
     elif pathname == "/incident_location_map":
         return generate_graph_object(graphs.fig_incident_locations)
-    elif pathname == "/confidential_data_loss":
-        return generate_graph_object(graphs.fig_data_variety)
+    elif pathname == "/incident_victims":
+        return generate_graph_object(graphs.fig_incident_victims)
     elif pathname == "/summary_table":
         return graphs.summary_table
     return endpoint_error

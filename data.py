@@ -1,6 +1,8 @@
 import json
-from flatten_json import flatten
+
 import pandas as pd
+from flatten_json import flatten
+
 from data_update import update_zip_file
 
 DATA_FILE = "./data/vcdb_1-of-1.json"
