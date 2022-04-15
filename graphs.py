@@ -112,7 +112,7 @@ fig_incident_victims = px.bar(
 ## TODO -> Join continent code and use to encode color
 fig_incident_locations = px.scatter_geo(
     df[df["victim.country.alpha3"] != "Unknown"]["victim.country.alpha3"]
-    .value_counts()[lambda x: x > 10]
+    .value_counts()
     .rename("count")
     .reset_index(),
     locations="index",
@@ -120,7 +120,7 @@ fig_incident_locations = px.scatter_geo(
     size_max=100,
     color="index",
     projection="natural earth",
-    title="Incident Locations<br><sup> Location of Incident Victims. Hover a bubble to see more details</sup>",
+    title="Incident Locations<br><sup> Location of Incident Victims. Hover a bubble to see more details. Click + Drag to navigate. Scroll wheel to zoom (or use the navigation buttons in the top right).</sup>",
     labels={"index": "Country", "count": "# of Incidents"},
 )
 
@@ -135,7 +135,7 @@ fig_actor_locations = px.scatter_geo(
     size_max=100,
     color="index",
     projection="natural earth",
-    title="External Actor Locations<br><sup> Main location of malicious actors. Hover a bubble to see more details</sup>",
+    title="External Actor Locations<br><sup> Main location of malicious actors. Hover a bubble to see more details.  Click + Drag to navigate. Scroll wheel to zoom (or use the navigation buttons in the top right)</sup>",
     labels={"index": "Country", "count": "# of Incidents"},
 )
 
