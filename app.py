@@ -92,6 +92,8 @@ def render_page_content(pathname):
         )
     elif pathname == "/incident_location_map":
         return generate_graph_object(graphs.fig_incident_locations)
+    elif pathname == "/actor_location_map":
+        return generate_graph_object(graphs.fig_actor_locations)
     elif pathname == "/incident_victims":
         return generate_graph_object(graphs.fig_incident_victims)
     elif pathname == "/summary_table":

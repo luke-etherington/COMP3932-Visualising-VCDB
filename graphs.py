@@ -24,7 +24,7 @@ continents = {
 
 df = data.generate_flattened_dataframe()
 
-## creates column in dataframe containing ISO-Alpha3 conversion of ISO-Alpha2 country codes
+## creates column in dataframe containing ISO-Alpha3 conversion of ISO-Alpha2 country codes for victim country
 df["victim.country.alpha3"] = df["victim.country.0"].apply(
     lambda c: c
     if c == "Unknown"
@@ -41,6 +41,14 @@ df["victim.continent"] = df["victim.country.0"].apply(
     else continents[country_alpha2_to_continent_code(c)]
 )
 
+## creates column in dataframe containing ISO-Alpha3 conversion of ISO-Alpha2 country codes for actor country
+df["actor.external.country.alpha3"] = df["actor.external.country.0"].apply(
+    lambda c: ""
+    if c == "Unknown" or c == "Other" or type(c) == float
+    else country_name_to_country_alpha3(country_alpha2_to_country_name(c))
+)
+
+
 ## Figure representing # Incidents / Incident Year as a bar chart
 fig_incident_year = px.bar(
     df[df["timeline.incident.year"].astype(int) >= 2000]["timeline.incident.year"]
@@ -55,10 +63,13 @@ fig_incident_year = px.bar(
 fig_incident_year.update_xaxes(tickmode="linear", tickfont=dict(size=10))
 fig_incident_year.update_yaxes(fixedrange=True)
 
+# Figure representing average # incidents / month
 fig_avg_incident_month = px.bar(
     df["timeline.incident.month"]
     .value_counts()
-    .apply(lambda c: c / len(pd.unique(df["timeline.incident.year"])))[lambda x: x != 0]
+    .apply(lambda c: round(c / len(pd.unique(df["timeline.incident.year"]))))[
+        lambda x: x != 0
+    ]
     .rename("count")
     .reset_index(),
     x="index",
@@ -76,12 +87,16 @@ fig_error_variety = px.bar(
     x="index",
     y="count",
     color="index",
-    labels={"index": "Error Variety", "count": "# Incidents"},
+    labels={
+        "index": "Error Variety<br><sup> The error made by actor at fault which led to the incident</sup>",
+        "count": "# Incidents",
+    },
     title="# Incidents / Error Variety",
 )
 fig_error_variety.update_layout(showlegend=False)
 fig_error_variety.update_xaxes(tickangle=70, tickfont=dict(size=10))
 
+# Figure representing top 10 victims by # incidents
 fig_incident_victims = px.bar(
     df["victim.victim_id"]
     .value_counts()[lambda c: c > 10]
@@ -105,10 +120,26 @@ fig_incident_locations = px.scatter_geo(
     size_max=100,
     color="index",
     projection="natural earth",
-    title="Incident Locations",
+    title="Incident Locations<br><sup> Location of Incident Victims. Hover a bubble to see more details</sup>",
     labels={"index": "Country", "count": "# of Incidents"},
 )
 
+## Figure representing # Incidents / actor location as a geographical scatter plot
+fig_actor_locations = px.scatter_geo(
+    df[df["actor.external.country.alpha3"] != ""]["victim.country.alpha3"]
+    .value_counts()
+    .rename("count")
+    .reset_index(),
+    locations="index",
+    size="count",
+    size_max=100,
+    color="index",
+    projection="natural earth",
+    title="External Actor Locations<br><sup> Main location of malicious actors. Hover a bubble to see more details</sup>",
+    labels={"index": "Country", "count": "# of Incidents"},
+)
+
+# Figure representing % split of incidents per confidential data type
 fig_data_variety = px.pie(
     df["attribute.confidentiality.data.0.variety"]
     .value_counts()
@@ -117,12 +148,13 @@ fig_data_variety = px.pie(
     names="index",
     values="count",
     color="index",
-    title="Confidential Data Occurences",
+    title="Confidential Data Occurences<br><sup> The type of confidential data effected by the incident.",
     labels={"index": "Confidential Data Category", "count": "# Occurences"},
 )
 fig_data_variety.update_traces(textposition="inside")
 fig_data_variety.update_layout(uniformtext_minsize=12, uniformtext_mode="hide")
 
+# Table chart showing incident reference and incident summary
 summary_table = dbc.Table.from_dataframe(
     df.iloc[:, [18, 22]]
     .reset_index()

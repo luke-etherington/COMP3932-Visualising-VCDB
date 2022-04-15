@@ -9,6 +9,9 @@ navbar = dbc.NavbarSimple(
             )
         ),
         dbc.NavItem(
+            dbc.NavLink("Actor Location Map", href="actor_location_map", active="exact")
+        ),
+        dbc.NavItem(
             dbc.NavLink("Incident Victims", href="incident_victims", active="exact")
         ),
         dbc.NavItem(dbc.NavLink("")),

@@ -26,7 +26,7 @@ def update_zip_file():
     response = requests.get(URL)
     if response.status_code == 200:
         zfile = zipfile.ZipFile(io.BytesIO(response.content))
-        zfile.extractall("D:/Documents/UNI/COMP3932 - Synoptic Project/repo/data")
+        zfile.extractall("./data/")
     return response.status_code
 
 
