@@ -104,7 +104,7 @@ fig_incident_victims = px.bar(
     .reset_index(),
     x="index",
     y="count",
-    labels={"index", "Incident Victim", "count", "# Incidents"},
+    labels={"index": "Incident Victim", "count": "# Incidents"},
     title="Most common incident victims",
 )
 
