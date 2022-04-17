@@ -61,7 +61,6 @@ fig_incident_year = px.bar(
     title="# Incidents / year",
 )
 fig_incident_year.update_xaxes(tickmode="linear", tickfont=dict(size=10))
-fig_incident_year.update_yaxes(fixedrange=True)
 
 # Figure representing average # incidents / month
 fig_avg_incident_month = px.bar(
