@@ -22,6 +22,21 @@ continents = {
     "EU": "Europe",
 }
 
+months = {
+    1: "Jan",
+    2: "Feb",
+    3: "Mar",
+    4: "Apr",
+    5: "May",
+    6: "Jun",
+    7: "Jul",
+    8: "Aug",
+    9: "Sep",
+    10: "Oct",
+    11: "Nov",
+    12: "Dec",
+}
+
 df = data.generate_flattened_dataframe()
 
 ## creates column in dataframe containing ISO-Alpha3 conversion of ISO-Alpha2 country codes for victim country
@@ -65,14 +80,14 @@ fig_incident_year.update_xaxes(tickmode="linear", tickfont=dict(size=10))
 # Figure representing average # incidents / month
 fig_avg_incident_month = px.bar(
     df["timeline.incident.month"]
-    .value_counts()
+    .apply(lambda m: m if m not in months.keys() else months[m])
+    .value_counts()[list(months.values())]
     .apply(lambda c: round(c / len(pd.unique(df["timeline.incident.year"]))))[
         lambda x: x != 0
     ]
     .rename("count")
     .reset_index(),
     x="index",
-    # x=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
     y="count",
     labels={"index": "Incident Month", "count": "Avg # Incidents"},
     title="Average # Incidents / Month",
@@ -87,10 +102,10 @@ fig_error_variety = px.bar(
     y="count",
     color="index",
     labels={
-        "index": "Error Variety<br><sup> The error made by actor at fault which led to the incident</sup>",
+        "index": "Error Variety",
         "count": "# Incidents",
     },
-    title="# Incidents / Error Variety",
+    title="# Incidents / Error Variety<br><sup> The type of error made by the actor at fault which influenced the incident</sup>",
 )
 fig_error_variety.update_layout(showlegend=False)
 fig_error_variety.update_xaxes(tickangle=70, tickfont=dict(size=10))
