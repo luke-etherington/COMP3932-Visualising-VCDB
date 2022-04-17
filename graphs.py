@@ -39,12 +39,16 @@ months = {
 
 df = data.generate_flattened_dataframe()
 
-## creates column in dataframe containing ISO-Alpha3 conversion of ISO-Alpha2 country codes for victim country
-df["victim.country.alpha3"] = df["victim.country.0"].apply(
-    lambda c: c
-    if c == "Unknown"
-    else country_name_to_country_alpha3(country_alpha2_to_country_name(c))
+## create column in dataframe containing full country name corresponding to ISO-Alpha2 country code
+df["victim.country.fullname"] = df["victim.country.0"].apply(
+    lambda c: c if c == "Unknown" else country_alpha2_to_country_name(c)
 )
+
+## creates column in dataframe containing ISO-Alpha3 conversion of ISO-Alpha2 country codes for victim country
+df["victim.country.alpha3"] = df["victim.country.fullname"].apply(
+    lambda c: c if c == "Unknown" else country_name_to_country_alpha3(c)
+)
+
 ## creates column in dataframe containing continent name corresponding to ISO-Alpha2 country code
 df["victim.continent"] = df["victim.country.0"].apply(
     lambda c: c
@@ -56,13 +60,38 @@ df["victim.continent"] = df["victim.country.0"].apply(
     else continents[country_alpha2_to_continent_code(c)]
 )
 
-## creates column in dataframe containing ISO-Alpha3 conversion of ISO-Alpha2 country codes for actor country
-df["actor.external.country.alpha3"] = df["actor.external.country.0"].apply(
+## create column in dataframe containing full country name corresponding to ISO-Alpha2 country code for actor country
+df["actor.external.country.fullname"] = df["actor.external.country.0"].apply(
     lambda c: ""
     if c == "Unknown" or c == "Other" or type(c) == float
-    else country_name_to_country_alpha3(country_alpha2_to_country_name(c))
+    else country_alpha2_to_country_name(c)
 )
 
+## creates column in dataframe containing ISO-Alpha3 conversion of ISO-Alpha2 country codes for actor country
+df["actor.external.country.alpha3"] = df["actor.external.country.fullname"].apply(
+    lambda c: "" if c == "" else country_name_to_country_alpha3(c)
+)
+
+## create continent name lookup table from existing victim.country.alpha3 and victim.continent fields
+continent_lookup = (
+    df.groupby(["victim.country.alpha3", "victim.continent"])
+    .size()
+    .reset_index()[["victim.country.alpha3", "victim.continent"]]
+)
+
+## create column in dataframe for actor.external.continent from ISO-Alpha3 country code using continent lookup table
+df["actor.external.continent"] = df["actor.external.country.alpha3"].apply(
+    lambda x: x
+    if x == ""
+    else "Africa"
+    if x == "LBY"
+    else dict(
+        zip(
+            continent_lookup["victim.country.alpha3"],
+            continent_lookup["victim.continent"],
+        )
+    )[x]
+)
 
 ## Figure representing # Incidents / Incident Year as a bar chart
 fig_incident_year = px.bar(
@@ -123,34 +152,64 @@ fig_incident_victims = px.bar(
 )
 
 ## Figure representing # Incidents / Country as a geographical scatter plot
-## TODO -> Join continent code and use to encode color
 fig_incident_locations = px.scatter_geo(
-    df[df["victim.country.alpha3"] != "Unknown"]["victim.country.alpha3"]
+    df.loc[
+        df["victim.country.alpha3"] != "Unknown",
+        ["victim.country.alpha3", "victim.continent", "victim.country.fullname"],
+    ]
     .value_counts()
-    .rename("count")
-    .reset_index(),
-    locations="index",
+    .reset_index()
+    .rename(columns={0: "count"}),
+    locations="victim.country.alpha3",
     size="count",
-    size_max=100,
-    color="index",
+    size_max=200,
+    color="victim.continent",
+    hover_data={
+        "victim.country.alpha3": False,
+        "victim.country.fullname": True,
+        "victim.continent": False,
+        "count": True,
+    },
     projection="natural earth",
     title="Incident Locations<br><sup> Location of Incident Victims. Hover a bubble to see more details. Click + Drag to navigate. Scroll wheel to zoom (or use the navigation buttons in the top right).</sup>",
-    labels={"index": "Country", "count": "# of Incidents"},
+    labels={
+        "victim.country.fullname": "Country",
+        "count": "# of Incidents",
+        "victim.continent": "Continent",
+    },
 )
+
 
 ## Figure representing # Incidents / actor location as a geographical scatter plot
 fig_actor_locations = px.scatter_geo(
-    df[df["actor.external.country.alpha3"] != ""]["victim.country.alpha3"]
+    df.loc[
+        df["actor.external.country.alpha3"] != "",
+        [
+            "actor.external.country.alpha3",
+            "actor.external.country.fullname",
+            "actor.external.continent",
+        ],
+    ]
     .value_counts()
-    .rename("count")
-    .reset_index(),
-    locations="index",
+    .reset_index()
+    .rename(columns={0: "count"}),
+    locations="actor.external.country.alpha3",
     size="count",
     size_max=100,
-    color="index",
+    color="actor.external.continent",
+    hover_data={
+        "actor.external.country.alpha3": False,
+        "actor.external.country.fullname": True,
+        "actor.external.continent": False,
+        "count": True,
+    },
     projection="natural earth",
     title="External Actor Locations<br><sup> Main location of malicious actors. Hover a bubble to see more details.  Click + Drag to navigate. Scroll wheel to zoom (or use the navigation buttons in the top right)</sup>",
-    labels={"index": "Country", "count": "# of Incidents"},
+    labels={
+        "actor.external.country.fullname": "Country",
+        "actor.external.continent": "Continent",
+        "count": "# of Incidents",
+    },
 )
 
 # Figure representing % split of incidents per confidential data type
