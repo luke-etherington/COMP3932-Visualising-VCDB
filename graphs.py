@@ -141,15 +141,33 @@ fig_error_variety.update_xaxes(tickangle=70, tickfont=dict(size=10))
 
 # Figure representing top 10 victims by # incidents
 fig_incident_victims = px.bar(
-    df["victim.victim_id"]
-    .value_counts()[lambda c: c > 10]
+    df[["victim.victim_id", "attribute.confidentiality.data_disclosure"]][
+        df["victim.victim_id"].isin(
+            df["victim.victim_id"].value_counts().nlargest(10).index.tolist()
+        )
+    ]
+    .value_counts()
     .rename("count")
     .reset_index(),
-    x="index",
-    y="count",
-    labels={"index": "Incident Victim", "count": "# Incidents"},
-    title="Most common incident victims",
+    y="victim.victim_id",
+    x="count",
+    color="attribute.confidentiality.data_disclosure",
+    barmode="group",
+    orientation="h",
+    log_x=True,
+    hover_data={
+        "victim.victim_id": True,
+        "attribute.confidentiality.data_disclosure": True,
+        "count": True,
+    },
+    labels={
+        "victim.victim_id": "Incident Victim",
+        "attribute.confidentiality.data_disclosure": "Confidential Data Disclosure",
+        "count": "# Incidents",
+    },
+    title="10 Most Common Incident Victims<br><sup>Split by confidential data loss status of incident</sup>",
 )
+fig_incident_victims.update_layout(legend=dict(orientation="h", x=0.5, y=1))
 
 ## Figure representing # Incidents / Country as a geographical scatter plot
 fig_incident_locations = px.scatter_geo(
@@ -164,9 +182,10 @@ fig_incident_locations = px.scatter_geo(
     size="count",
     size_max=200,
     color="victim.continent",
+    hover_name="victim.country.fullname",
     hover_data={
         "victim.country.alpha3": False,
-        "victim.country.fullname": True,
+        "victim.country.fullname": False,
         "victim.continent": False,
         "count": True,
     },
@@ -178,7 +197,6 @@ fig_incident_locations = px.scatter_geo(
         "victim.continent": "Continent",
     },
 )
-
 
 ## Figure representing # Incidents / actor location as a geographical scatter plot
 fig_actor_locations = px.scatter_geo(
@@ -197,9 +215,10 @@ fig_actor_locations = px.scatter_geo(
     size="count",
     size_max=100,
     color="actor.external.continent",
+    hover_name="actor.external.country.fullname",
     hover_data={
         "actor.external.country.alpha3": False,
-        "actor.external.country.fullname": True,
+        "actor.external.country.fullname": False,
         "actor.external.continent": False,
         "count": True,
     },
