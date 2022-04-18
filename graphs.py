@@ -1,5 +1,15 @@
-import calendar
-from math import isnan
+# !/usr/bin/env python3
+# coding=utf-8
+# =============================================================================
+# Author: Luke Etherington
+# Email: sc18lge@leeds.ac.uk
+# Module: COMP3932 - Synoptic project
+# Supervisor: Nick Efford
+#
+# Visualising Data Security Incidents using VCDB
+#
+# graphs.py
+# =============================================================================
 
 import dash_bootstrap_components as dbc
 import pandas as pd
@@ -22,6 +32,7 @@ continents = {
     "EU": "Europe",
 }
 
+# Used to convert month numbers to full month names
 months = {
     1: "Jan",
     2: "Feb",

@@ -28,9 +28,3 @@ def update_zip_file():
         zfile = zipfile.ZipFile(io.BytesIO(response.content))
         zfile.extractall("./data/")
     return response.status_code
-
-
-# if __name__ == "__main__":
-#     start = timeit.default_timer()
-#     update_zip_file()
-#     print(timeit.default_timer() - start)

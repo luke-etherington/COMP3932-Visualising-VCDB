@@ -1,3 +1,16 @@
+# !/usr/bin/env python3
+# coding=utf-8
+# =============================================================================
+# Author: Luke Etherington
+# Email: sc18lge@leeds.ac.uk
+# Module: COMP3932 - Synoptic project
+# Supervisor: Nick Efford
+#
+# Visualising Data Security Incidents using VCDB
+#
+# data.py
+# =============================================================================
+
 import json
 
 import pandas as pd
