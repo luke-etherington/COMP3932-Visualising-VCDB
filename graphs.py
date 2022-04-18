@@ -143,7 +143,10 @@ fig_error_variety.update_xaxes(tickangle=70, tickfont=dict(size=10))
 fig_incident_victims = px.bar(
     df[["victim.victim_id", "attribute.confidentiality.data_disclosure"]][
         df["victim.victim_id"].isin(
-            df["victim.victim_id"].value_counts().nlargest(10).index.tolist()
+            df[df["victim.victim_id"] != "Unknown"]["victim.victim_id"]
+            .value_counts()
+            .nlargest(10)
+            .index.tolist()
         )
     ]
     .value_counts()
