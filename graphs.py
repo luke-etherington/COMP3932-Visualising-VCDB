@@ -48,7 +48,24 @@ months = {
     12: "Dec",
 }
 
+# Populate full dataframe
 df = data.generate_flattened_dataframe()
+
+# Reduce dataframe to required fields
+df = df[
+    [
+        "victim.country.0",
+        "actor.external.country.0",
+        "timeline.incident.year",
+        "timeline.incident.month",
+        "action.error.variety.0",
+        "victim.victim_id",
+        "attribute.confidentiality.data_disclosure",
+        "attribute.confidentiality.data.0.variety",
+        "reference",
+        "summary",
+    ]
+]
 
 ## create column in dataframe containing full country name corresponding to ISO-Alpha2 country code
 df["victim.country.fullname"] = df["victim.country.0"].apply(
@@ -249,7 +266,7 @@ fig_data_variety.update_layout(uniformtext_minsize=12, uniformtext_mode="hide")
 
 # Table chart showing incident reference and incident summary
 summary_table = dbc.Table.from_dataframe(
-    df.iloc[:, [18, 22]]
+    df[["reference", "summary"]]
     .reset_index()
     .rename(
         columns={
