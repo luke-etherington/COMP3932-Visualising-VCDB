@@ -89,6 +89,8 @@ df["actor.external.continent"] = df["actor.external.country.0"].apply(
     else continents[country_alpha2_to_continent_code(c)]
 )
 
+print(df[df["timeline.incident.year"].astype(int) < 2000]["timeline.incident.year"])
+
 ## Figure representing # Incidents / Incident Year as a bar chart
 fig_incident_year = px.bar(
     df[df["timeline.incident.year"].astype(int) >= 2000]["timeline.incident.year"]
@@ -98,7 +100,7 @@ fig_incident_year = px.bar(
     x="index",
     y="count",
     labels={"index": "Incident Year", "count": "# Incidents"},
-    title="# Incidents / year",
+    title="# Incidents / year since 2000",
 )
 fig_incident_year.update_xaxes(tickmode="linear", tickfont=dict(size=10))
 
