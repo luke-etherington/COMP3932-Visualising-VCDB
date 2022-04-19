@@ -100,13 +100,12 @@ df["actor.external.country.alpha3"] = df["actor.external.country.fullname"].appl
     lambda c: "" if c == "" else country_name_to_country_alpha3(c)
 )
 
+## create column in dataframe containing continent name corresponding to ISO-Alpha2 country code for actor country
 df["actor.external.continent"] = df["actor.external.country.0"].apply(
     lambda c: c
     if type(c).__name__ == "float" or c == "Unknown" or c == "Other"
     else continents[country_alpha2_to_continent_code(c)]
 )
-
-print(df[df["timeline.incident.year"].astype(int) < 2000]["timeline.incident.year"])
 
 ## Figure representing # Incidents / Incident Year as a bar chart
 fig_incident_year = px.bar(
