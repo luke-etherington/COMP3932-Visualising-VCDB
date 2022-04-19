@@ -14,7 +14,6 @@
 
 
 import io
-import timeit
 import zipfile
 
 import requests

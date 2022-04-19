@@ -83,25 +83,10 @@ df["actor.external.country.alpha3"] = df["actor.external.country.fullname"].appl
     lambda c: "" if c == "" else country_name_to_country_alpha3(c)
 )
 
-## create continent name lookup table from existing victim.country.alpha3 and victim.continent fields
-continent_lookup = (
-    df.groupby(["victim.country.alpha3", "victim.continent"])
-    .size()
-    .reset_index()[["victim.country.alpha3", "victim.continent"]]
-)
-
-## create column in dataframe for actor.external.continent from ISO-Alpha3 country code using continent lookup table
-df["actor.external.continent"] = df["actor.external.country.alpha3"].apply(
-    lambda x: x
-    if x == ""
-    else "Africa"
-    if x == "LBY"
-    else dict(
-        zip(
-            continent_lookup["victim.country.alpha3"],
-            continent_lookup["victim.continent"],
-        )
-    )[x]
+df["actor.external.continent"] = df["actor.external.country.0"].apply(
+    lambda c: c
+    if type(c).__name__ == "float" or c == "Unknown" or c == "Other"
+    else continents[country_alpha2_to_continent_code(c)]
 )
 
 ## Figure representing # Incidents / Incident Year as a bar chart
