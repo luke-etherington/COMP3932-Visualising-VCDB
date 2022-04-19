@@ -16,17 +16,21 @@ from dash import Dash, Input, Output, callback, dcc, html
 import graphs
 from components import endpoint_error, navbar
 
+## Declare external Bootstrap CDN as stylesheet source
 external_stylesheets = [
     "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
 ]
 
+## Initialise Dash app
 app = Dash(
     __name__,
     external_stylesheets=external_stylesheets,
     suppress_callback_exceptions=True,
 )
-server = app.server
 app.title = "VCDB Dashboard"
+
+## Initialise Flask server variable for Heroku
+server = app.server
 
 
 ## Main page layout
@@ -45,6 +49,7 @@ def generate_graph_object(figure):
     return graph
 
 
+## Given 4 figure objects, generates a dashboard layout in a 2x2 dynamic grid
 def generate_dashboard(figure_1, figure_2, figure_3, figure_4):
     dashboard_layout = [
         html.Div(
