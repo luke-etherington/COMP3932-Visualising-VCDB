@@ -42,7 +42,7 @@ navbar = dbc.NavbarSimple(
     color="primary",
     dark=True,
     fluid=True,
-    style={"padding-right": "120px", "padding-left": "10px"},
+    style={"paddingRight": "120px", "paddingLeft": "10px"},
 )
 
 ## Component displayed on invalid endpoint request
