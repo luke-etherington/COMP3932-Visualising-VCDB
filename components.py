@@ -31,6 +31,9 @@ navbar = dbc.NavbarSimple(
             [
                 dbc.DropdownMenuItem("More pages", header=True),
                 dbc.DropdownMenuItem("Incident Summaries", href="/summary_table"),
+                dbc.DropdownMenuItem(
+                    "VCDB Data Source", href="https://github.com/vz-risk/VCDB"
+                ),
             ],
             nav=True,
             in_navbar=True,

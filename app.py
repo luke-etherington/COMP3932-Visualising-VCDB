@@ -39,6 +39,27 @@ app.layout = html.Div(
         dcc.Location(id="url"),
         navbar,
         html.Div(id="page-content", style={"height": "100%", "width": "100%"}),
+        html.Footer(
+            [
+                html.P(
+                    [
+                        "Data provided by VCDB: ",
+                        html.A(
+                            "https://github.com/vz-risk",
+                            href="https://github.com/vz-risk",
+                        ),
+                    ],
+                    style={"fontSize": "10px", "fontStyle": "italic"},
+                )
+            ],
+            id="footer",
+            style={
+                "height": "15px",
+                "bottom": "0",
+                "position": "fixed",
+                "margin": "10px",
+            },
+        ),
     ],
     style={"height": "90vh"},
 )
